@@ -30,13 +30,15 @@ jobs:
     # each event.
     #
     # To prevent this, this condition ensures that integration tests are run
-    # in only ONE of the following mutually exclusive cases:
+    # in only ONE of the following cases:
     #
-    #   1. The event is a pull_request_target (PR from a fork)
-    #   2. The base repo and head repo are the same (i.e., the event was not
-    #      triggered from a fork)
+    #   1. The event is NOT a pull_request.  This covers the case when the event
+    #      is a pull_request_target (i.e., a PR from a fork), as well as all
+    #      other cases listed in the "on" block at the top of this file.
+    #   2. The event IS a pull_request AND the base repo and head repo are the
+    #      same (i.e., the PR is NOT from a fork).
     #
-    if: github.event_name == 'pull_request_target' || (github.event_name == 'pull_request' && github.event.pull_request.base.repo.full_name == github.event.pull_request.head.repo.full_name)
+    if: github.event_name != 'pull_request' || github.event.pull_request.base.repo.full_name == github.event.pull_request.head.repo.full_name
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -44,12 +46,6 @@ jobs:
       fail-fast: false
 
     steps:
-      - name: Is base same as head?
-        run: |
-          echo "github.event_name: ${{ github.event_name }}"
-          echo "base: ${{ github.event.pull_request.base.repo.full_name }}"
-          echo "head: ${{ github.event.pull_request.head.repo.full_name }}"
-          echo "${{ github.event_name == 'pull_request_target' || (github.event_name == 'pull_request' && github.event.pull_request.base.repo.full_name == github.event.pull_request.head.repo.full_name) }}"
       - name: Fetch user permission
         id: permission
         uses: actions-cool/check-user-permission@v2
@@ -79,7 +75,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Test
+      - name: Run integration tests
         env:
           EARTHDATA_USERNAME: ${{ secrets.EDL_USERNAME }}
           EARTHDATA_PASSWORD: ${{ secrets.EDL_PASSWORD }}
@@ -87,7 +83,7 @@ jobs:
           EARTHACCESS_TEST_PASSWORD: ${{ secrets.EDL_PASSWORD }}
         run: ./scripts/integration-test.sh
 
-      - name: Upload coverage
+      - name: Upload coverage report
         # Don't upload coverage when using the `act` tool to run the workflow locally
         if: ${{ !env.ACT }}
         uses: codecov/codecov-action@v4
