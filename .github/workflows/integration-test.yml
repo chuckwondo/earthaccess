@@ -36,7 +36,7 @@ jobs:
     #   2. The base repo and head repo are the same (i.e., the event was not
     #      triggered from a fork)
     #
-    if: github.event_name == 'pull_request_target' || github.event_name != 'pull_request' || ${{ github.event.pull_request.base.repo.full_name == github.event.pull_request.head.repo.full_name }}
+    if: github.event_name == 'pull_request_target' || (github.event_name == 'pull_request' && github.event.pull_request.base.repo.full_name == github.event.pull_request.head.repo.full_name)
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -46,8 +46,10 @@ jobs:
     steps:
       - name: Is base same as head?
         run: |
-          echo '${{ github.event.pull_request.base.repo.full_name }}'
-          echo '${{ github.event.pull_request.head.repo.full_name }}'
+          echo "github.event_name: ${{ github.event_name }}"
+          echo "base: ${{ github.event.pull_request.base.repo.full_name }}"
+          echo "head: ${{ github.event.pull_request.head.repo.full_name }}"
+          echo "${{ github.event_name == 'pull_request_target' || (github.event_name == 'pull_request' && github.event.pull_request.base.repo.full_name == github.event.pull_request.head.repo.full_name) }}"
       - name: Fetch user permission
         id: permission
         uses: actions-cool/check-user-permission@v2
