@@ -44,6 +44,10 @@ jobs:
       fail-fast: false
 
     steps:
+      - name: Is base same as head?
+        run: |
+          echo '${{ github.event.pull_request.base.repo.full_name }}'
+          echo '${{ github.event.pull_request.head.repo.full_name }}'
       - name: Fetch user permission
         id: permission
         uses: actions-cool/check-user-permission@v2
