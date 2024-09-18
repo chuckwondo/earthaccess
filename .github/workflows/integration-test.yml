@@ -36,7 +36,7 @@ jobs:
     #   2. The base repo and head repo are the same (i.e., the event was not
     #      triggered from a fork)
     #
-    if: github.event_name == 'pull_request_target' || ${{ github.event.pull_request.base.repo.full_name == github.event.pull_request.head.repo.full_name }}
+    if: github.event_name == 'pull_request_target' || github.event_name != 'pull_request' || ${{ github.event.pull_request.base.repo.full_name == github.event.pull_request.head.repo.full_name }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
