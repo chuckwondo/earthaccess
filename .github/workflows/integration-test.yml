@@ -51,6 +51,8 @@ jobs:
       fail-fast: false
 
     steps:
+      - name: show event payload
+        run: echo "${{ toJson(github.event) }}""
       - name: Fetch user permission
         id: permission
         uses: actions-cool/check-user-permission@v2
@@ -69,7 +71,7 @@ jobs:
           echo "User ${{ github.triggering_actor }} does not have permission to run integration tests."
           echo "A maintainer must perform a security review and re-run this build, if the code is safe (see"
           echo "https://securitylab.github.com/resources/github-actions-preventing-pwn-requests)."
-          echo "Re-run at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}."
+          echo "Re-run at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           exit 1
 
       - name: Checkout source
