@@ -61,10 +61,7 @@ jobs:
         # will need to make sure the PR looks safe, and if so, manually re-run the
         # failed pull_request_target jobs.
         run: |
-          echo "::error::User ${{ github.triggering_actor }} does not have permission to run integration tests."
-          echo "::error::A maintainer must perform a security review and re-run this build, if the code is safe (see"
-          echo "::error::https://securitylab.github.com/resources/github-actions-preventing-pwn-requests)."
-          exit 1
+          echo "::error::User ${{ github.triggering_actor }} does not have permission to run integration tests. A maintainer must perform a security review and re-run this build, if the code is safe (see https://securitylab.github.com/resources/github-actions-preventing-pwn-requests)." && exit 1
 
       - name: Checkout source
         uses: actions/checkout@v4
