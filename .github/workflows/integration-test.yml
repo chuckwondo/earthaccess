@@ -33,17 +33,10 @@ jobs:
     # in only ONE of the following mutually exclusive cases:
     #
     #   1. The event is a pull_request_target (PR from a fork)
-    #   2. The event is NOT a pull_request_target AND the event payload is
-    #      NOT empty.  When a PR is from a fork, the pull_request event payload
-    #      is empty, so by running the job only when the payload is NOT empty
-    #      ensures that we don't duplicate the integration tests triggered by
-    #      the pull_request_target event.  This also allows PRs not from a fork
-    #      to run integration tests.
+    #   2. The base repo and head repo are the same (i.e., the event was not
+    #      triggered from a fork)
     #
-    # See the Notes section regarding the pull_request event type regarding PRs
-    # from forks: https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#pull_request
-    #
-    if: github.event_name == 'pull_request_target' || toJson(github.event) != '{}'
+    if: github.event_name == 'pull_request_target' || github.event_name != 'pull_request' || ${{ github.event.pull_request.base.repo.full_name == github.event.pull_request.head.repo.full_name }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -51,8 +44,6 @@ jobs:
       fail-fast: false
 
     steps:
-      - name: show event payload
-        run: echo "${{ toJson(github.event) }}""
       - name: Fetch user permission
         id: permission
         uses: actions-cool/check-user-permission@v2
